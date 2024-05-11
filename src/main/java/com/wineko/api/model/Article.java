@@ -35,4 +35,8 @@ public class Article {
 
     @Column(name = "active")
     private boolean active;
+
+    public boolean isActive() {
+        return this.active;
+    }
 }
