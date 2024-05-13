@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "contact")
+@Table(name = "user")
 public class User {
 
     @Id
@@ -25,5 +25,8 @@ public class User {
 
     @Column(name ="password")
     private String password;
+
+    @Column(name ="adress")
+    private String adress;
 
 }
