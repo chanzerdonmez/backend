@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @Entity
@@ -28,13 +30,20 @@ public class Article {
     private String description;
 
     @Column(name = "price")
-    private float price;
+    private double price;
 
-    @Column(name = "image")
+    @Column(name = "image", nullable = true)
     private String image;
+
+    @Column(name ="date_creation")
+    private Date dateCreation;
 
     @Column(name = "active")
     private boolean active;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = true)  // colonne de jointure
+    private Category category;
 
     public boolean isActive() {
         return this.active;

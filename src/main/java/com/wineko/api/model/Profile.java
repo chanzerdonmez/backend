@@ -1,19 +1,20 @@
 package com.wineko.api.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
 @Entity
-@Table(name = "order")
-public class Order {
+@Data
+public class Profile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
     private Integer id;
 
-    @Column(name ="adress")
-    private String adress;
+    @Column(name ="name")
+    private String name;
+
+    @Column(name ="first_name")
+    private String firstName;
+
 }

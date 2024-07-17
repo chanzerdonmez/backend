@@ -4,6 +4,7 @@ import com.wineko.api.repository.ArticleRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class ArticleService {
-    private final ArticleRepository articleRepository;
+
+    @Autowired
+    private  ArticleRepository articleRepository;
 
     public ArticleService(ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
@@ -84,7 +87,6 @@ public class ArticleService {
     }
 
 
-
     /**
      * Récupérer l'ensemble des biens
      * @return Article
@@ -98,14 +100,9 @@ public class ArticleService {
      * - l'ajout : id = null <br>
      * - modification : id != null
      * @param article
-     * @return
+     * @return Article
      */
     public Article save(Article article){
-        try {
-            this.articleRepository.save(article);
-        } catch(Exception e) {
-            throw new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY); 
-        }
         return this.articleRepository.save(article);
     }
 
@@ -144,6 +141,17 @@ public class ArticleService {
         Article article = this.getById(id);
         this.articleRepository.delete(article);
         return "Record fully deleted"; 
+    }
+
+    public List<Article> getArticlesByCategory(String categoryTitle) {
+        return this.articleRepository.findByCategoryTitle(categoryTitle);
+    }
+
+    public List<Article> getRecentArticles() {
+        return this.articleRepository.findAll().stream()
+                .sorted((a1, a2) -> a2.getDateCreation().compareTo(a1.getDateCreation()))
+                .limit(3)
+                .collect(Collectors.toList());
     }
 
 }
