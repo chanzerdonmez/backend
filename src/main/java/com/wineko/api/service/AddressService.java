@@ -22,6 +22,7 @@ public class AddressService {
         this.userRepository = userRepository;
     }
 
+
     public void saveAddressForUser(Users user, Address address) {
         address.setUser(user);
         addressRepository.save(address);
@@ -31,4 +32,6 @@ public class AddressService {
         updated.setId(id);
         return this.addressRepository.save(updated);
     }
+
+
 }

@@ -6,9 +6,13 @@ import com.wineko.api.model.Article;
 import com.wineko.api.model.Users;
 import com.wineko.api.service.AddressService;
 import com.wineko.api.service.ArticleService;
+import com.wineko.api.service.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,14 +23,24 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private UsersService usersService;
+
     @PostMapping("/add")
-    public String addAddress(@AuthenticationPrincipal Users user, @RequestBody Address address) {
+    public String addAddress(@RequestBody Address address) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+        Users user = usersService.findByEmail(currentUserName);
+
         if (user == null) {
             return "User not authenticated";
         }
+
+        address.setUser(user);
         addressService.saveAddressForUser(user, address);
         return "Address added successfully";
     }
+
 
     @PatchMapping("/update/{id}")
     public Address updateAddress(
@@ -36,4 +50,6 @@ public class AddressController {
         this.addressService.update(id, address);
         return address;
     }
+
+
 }

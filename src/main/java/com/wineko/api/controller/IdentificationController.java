@@ -12,6 +12,7 @@ import com.wineko.api.service.EmailService;
 import com.wineko.api.service.UsersService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -46,7 +47,7 @@ public class IdentificationController {
     private EmailService emailService;
 
     @PostMapping("/login")
-    public Map<String, String> identification(@RequestBody IdentificationDto identificationDto, HttpServletResponse response) {
+    public Map<String, String> identification(@RequestBody IdentificationDto identificationDto, HttpServletResponse response, HttpSession session) {
         String msgError = "L'email ou le mot de passe est incorrect";
 
         // Vérifier si l'email existe
@@ -67,6 +68,10 @@ public class IdentificationController {
             logger.info("Email not confirmed for user: " + identificationDto.getEmail());
             throw new WsException(HttpStatus.BAD_REQUEST, "Veuillez confirmer votre email pour activer votre compte.");
         }
+
+        session.setAttribute("userId", users.getId());
+        logger.info("User ID stored in session: " + users.getId());
+
 
         // Générer le token
         String token = JwtTokenManager.generateToken(users.getToken());

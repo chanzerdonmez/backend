@@ -14,4 +14,8 @@ import org.springframework.stereotype.Repository;
 
     Users findByEmail(String email);
 
+//    Users findByUsername(String username);
+
+
+
 }

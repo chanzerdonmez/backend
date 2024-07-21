@@ -5,6 +5,7 @@ import com.wineko.api.service.UsersService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
@@ -23,41 +25,51 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     private UsersService usersService;
 
+    @Autowired
+    private JwtTokenManager jwtTokenManager;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String token = getJwtFromRequest(request);
 
-        String urlRequest = request.getRequestURI();
+        if (token != null) {
+            try {
+                Claims claims = jwtTokenManager.parseToken(token);
+                String username = claims.getSubject();
 
-        if (urlRequest.startsWith("/api/open/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        try {
-            String header = request.getHeader("Authorization");
-            if (header == null || !header.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = usersService.loadUserByUsername(username);
+                    if (jwtTokenManager.validateToken(token, userDetails)) {
+                        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Failed to parse or validate token: " + e.getMessage());
             }
-
-            String token = header.substring(7);
-            Claims claims = JwtTokenManager.parseToken(token);
-
-            String username = claims.getSubject();
-
-            UserDetails user = usersService.findByEmail(username);
-
-            if (user == null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception e) {
-            logger.info("Trying to parse token but failed: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+
+        return getJwtFromCookies(request);
+    }
+
+    private String getJwtFromCookies(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

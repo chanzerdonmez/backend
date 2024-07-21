@@ -21,27 +21,17 @@ import java.util.Arrays;
 @Configuration
 public class SecurityConfig {
 
+    private final UsersService usersService;
+    private final SecurityFilter securityFilter;
+
+    public SecurityConfig(UsersService usersService, SecurityFilter securityFilter) {
+        this.usersService = usersService;
+        this.securityFilter = securityFilter;
+    }
+
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SecurityFilter securityFilter() {
-        return new SecurityFilter();
-    }
-
-    @Bean
-    public UsersService usersService() {
-        return new UsersService();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        daoAuthenticationProvider.setUserDetailsService(usersService());
-        return daoAuthenticationProvider;
     }
 
     @Bean
@@ -53,9 +43,9 @@ public class SecurityConfig {
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/api/article/**").permitAll()
                         .requestMatchers("/api/order").permitAll()
-//                        .requestMatchers("/api/users/me").permitAll()
+                        .requestMatchers("/api/open/**").permitAll()
+                        .requestMatchers("/api/users/info").authenticated()
                         .requestMatchers("/api/users/me").authenticated()
-                        .requestMatchers("/login", "/api/article/**", "/api/order", "/api/category/**", "/api/login", "/api/register").permitAll()
                         .requestMatchers("/api/dashboard/**").hasAnyAuthority("ADMIN")
                         .anyRequest().permitAll()
                 )
@@ -66,10 +56,18 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "jwt")
                 )
-                .addFilterBefore(securityFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(usersService);
+        return daoAuthenticationProvider;
     }
 
     @Bean
@@ -82,6 +80,7 @@ public class SecurityConfig {
         config.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         config.setAllowCredentials(true);
+
         source.registerCorsConfiguration("/**", config);
         return source;
     }

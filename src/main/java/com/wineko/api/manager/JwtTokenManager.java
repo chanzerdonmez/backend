@@ -3,6 +3,7 @@ package com.wineko.api.manager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -39,6 +40,24 @@ public class JwtTokenManager {
     public Integer getUserIdFromToken(String token) {
         Claims claims = parseToken(token);
         return Integer.parseInt(claims.getSubject());
+    }
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        final String username = getUsernameFromToken(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public String getUsernameFromToken(String token) {
+        return parseToken(token).getSubject();
+    }
+
+    public boolean isTokenExpired(String token) {
+        final Date expiration = getExpirationDateFromToken(token);
+        return expiration.before(new Date());
+    }
+
+    public Date getExpirationDateFromToken(String token) {
+        return parseToken(token).getExpiration();
     }
 
     private static SecretKey secretKey() {

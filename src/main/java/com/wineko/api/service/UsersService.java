@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 public class UsersService implements UserDetailsService {
 
+
     @Autowired
     private UserRepository userRepository;
 
@@ -70,7 +71,7 @@ public class UsersService implements UserDetailsService {
 
         return userRepository.save(existingUser);
     }
-    public Users getCurrentUser() {
+    public Users getCurrentUserId() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email);
     }
@@ -89,7 +90,18 @@ public class UsersService implements UserDetailsService {
         return this.userRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Product not found"));
     }
 
+    public Users getByIdAddress(Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
 
 
+
+//    public Users findByUsername(String username) {
+//        return userRepository.findByUsername(username);
+//    }
+
+    public Users findByUsername(String username) {
+        return userRepository.findByEmail(username);
+    }
 
 }

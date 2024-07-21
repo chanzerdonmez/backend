@@ -1,8 +1,11 @@
 package com.wineko.api.controller;
 
+import com.wineko.api.dto.IdentificationDto;
 import com.wineko.api.dto.UserDto;
+import com.wineko.api.dto.UserInfoDto;
 import com.wineko.api.model.Users;
 import com.wineko.api.service.UsersService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,29 +51,22 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser() {
+
+
+    @GetMapping("/info")
+    public ResponseEntity<UserInfoDto> getUserInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        String username = authentication.getName();
+        System.out.println("Authenticated username: " + username);
+
+        Users user = usersService.findByUsername(username);
+
+        if (user == null) {
+            System.out.println("User not found for username: " + username);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
-        String currentUserName = authentication.getName();
-        Users currentUser = usersService.findByEmail(currentUserName);
-
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        UserDto userDto = new UserDto();
-        userDto.setId(currentUser.getId());
-        userDto.setName(currentUser.getName());
-        userDto.setFirstName(currentUser.getFirstName());
-        userDto.setEmail(currentUser.getEmail());
-        userDto.setPassword(currentUser.getPassword());
-
-        return ResponseEntity.ok(userDto);
+        UserInfoDto userInfoDto = new UserInfoDto(user.getId(), user.getEmail());
+        return ResponseEntity.ok(userInfoDto);
     }
-
-
 }
