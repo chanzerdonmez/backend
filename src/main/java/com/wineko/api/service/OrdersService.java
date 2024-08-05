@@ -19,15 +19,19 @@ public class OrdersService {
         this.orderRepository = orderRepository;
     }
 
-    public List<Orders> getAll(){
-        List<Orders> orders;
-        try {
+//    public List<Orders> getAll(){
+//        List<Orders> orders;
+//        try {
+//
+//            orders = this.orderRepository.findAll();
+//System.out.println("string test"+ orders);        } catch(Exception exception) {
+//
+//            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Unable to fetch orders", exception);
+//        }
+//        return orders;
+//    }
 
-            orders = this.orderRepository.findAll();
-System.out.println("string test"+ orders);        } catch(Exception exception) {
-
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Unable to fetch orders", exception);
-        }
-        return orders;
+    public List<Orders> getAll() {
+        return orderRepository.findAllWithUsers();
     }
 }

@@ -5,6 +5,7 @@ import com.wineko.api.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,4 +81,18 @@ public class ArticleController {
     public List<Article> getRecentArticles() {
         return this.articleService.getRecentArticles();
     }
+
+
+    @PostMapping("/upload/{id}")
+    public String uploadImage(@PathVariable Integer id, @RequestParam("image") MultipartFile file) {
+        return this.articleService.uploadImage(id, file);
+    }
+
+
+
+
+
+
+
+
 }

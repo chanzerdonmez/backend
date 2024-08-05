@@ -1,6 +1,7 @@
 package com.wineko.api.controller;
 
 import com.wineko.api.dto.IdentificationDto;
+import com.wineko.api.dto.ResponseUserLoginDto;
 import com.wineko.api.dto.UserDto;
 import com.wineko.api.manager.Aleatoire;
 import com.wineko.api.manager.JwtTokenManager;
@@ -47,7 +48,7 @@ public class IdentificationController {
     private EmailService emailService;
 
     @PostMapping("/login")
-    public Map<String, String> identification(@RequestBody IdentificationDto identificationDto, HttpServletResponse response, HttpSession session) {
+    public ResponseUserLoginDto identification(@RequestBody IdentificationDto identificationDto, HttpServletResponse response, HttpSession session) {
         String msgError = "L'email ou le mot de passe est incorrect";
 
         // Vérifier si l'email existe
@@ -87,7 +88,15 @@ public class IdentificationController {
         logger.info("User logged in: " + users.getEmail());
 
         // Retourner le token pour utilisation dans le frontend (facultatif)
-        return Map.of("token", token);
+
+        ResponseUserLoginDto dto = new ResponseUserLoginDto();
+        dto.setId(users.getId());
+        dto.setName(users.getName());
+        dto.setFirstName(users.getFirstName());
+        dto.setEmail(users.getEmail());
+        dto.setToken(token);
+
+        return dto;
     }
 
 

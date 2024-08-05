@@ -10,14 +10,19 @@ import com.wineko.api.service.UsersService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/address")
-@CrossOrigin(origins = "http://localhost:4200")
 public class AddressController {
 
     @Autowired
@@ -27,19 +32,29 @@ public class AddressController {
     private UsersService usersService;
 
     @PostMapping("/add")
-    public String addAddress(@RequestBody Address address) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserName = authentication.getName();
-        Users user = usersService.findByEmail(currentUserName);
+    public String addAddress(@RequestBody Address address,@AuthenticationPrincipal UserDetails principal) {
 
-        if (user == null) {
-            return "User not authenticated";
-        }
+        Users user = (Users) principal;
 
-        address.setUser(user);
         addressService.saveAddressForUser(user, address);
         return "Address added successfully";
     }
+
+
+//    @PostMapping("/add")
+//    public ResponseEntity<Map<String, String>> addAddress(@RequestBody Address address, @AuthenticationPrincipal UserDetails principal) {
+//        Users user = (Users) principal;
+//        if (user == null) {
+//            throw new IllegalArgumentException("User not authenticated");
+//        }
+//        addressService.saveAddressForUser(user, address);
+//        Map<String, String> response = new HashMap<>();
+//        response.put("message", "Address added successfully");
+//        return ResponseEntity.ok(response); // Renvoie une réponse JSON valide
+//    }
+
+
+
 
 
     @PatchMapping("/update/{id}")
@@ -49,6 +64,16 @@ public class AddressController {
     ){
         this.addressService.update(id, address);
         return address;
+    }
+
+
+    @GetMapping("/user/addresses")
+    public List<Address> getUserAddresses(@AuthenticationPrincipal UserDetails principal) {
+        Users user = usersService.findByUsername(principal.getUsername());
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        return addressService.getAddressesByUser(user);
     }
 
 

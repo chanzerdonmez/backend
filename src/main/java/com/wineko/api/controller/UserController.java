@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,17 +54,12 @@ public class UserController {
     }
 
 
-
     @GetMapping("/info")
-    public ResponseEntity<UserInfoDto> getUserInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        System.out.println("Authenticated username: " + username);
-
-        Users user = usersService.findByUsername(username);
+    public ResponseEntity<UserInfoDto> getUserInfo(@AuthenticationPrincipal UserDetails principal) {
+        Users user = (Users) principal;
 
         if (user == null) {
-            System.out.println("User not found for username: " + username);
+            System.out.println("User not found for username: " );
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 

@@ -25,14 +25,9 @@ public class OrderController {
     }
 
     @GetMapping("/get/all")
-    public ResponseEntity<List<Orders>> allOrders(){
-        try {
-            List<Orders> orders = ordersService.getAll();
-            return ResponseEntity.ok(orders);
-        } catch (Exception e) {
-            // Log the exception for further investigation
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<List<Orders>> allOrders() {
+        List<Orders> orders = ordersService.getAll();
+        return ResponseEntity.ok(orders);
     }
+
 }

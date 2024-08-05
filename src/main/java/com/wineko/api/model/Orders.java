@@ -35,7 +35,7 @@ public class Orders {
     private Date dateCreation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "users_id", referencedColumnName = "id")
     private Users users;
 
 }

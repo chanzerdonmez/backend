@@ -8,6 +8,8 @@ import com.wineko.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AddressService {
 
@@ -33,5 +35,8 @@ public class AddressService {
         return this.addressRepository.save(updated);
     }
 
+    public List<Address> getAddressesByUser(Users user) {
+        return addressRepository.findByUser(user);
+    }
 
 }

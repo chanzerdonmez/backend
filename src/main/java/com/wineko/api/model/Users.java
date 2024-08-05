@@ -59,9 +59,6 @@ public class Users implements UserDetails {
 //    @ManyToMany(fetch = FetchType.EAGER)
 //    private List<Role> roles;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Orders> orders;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

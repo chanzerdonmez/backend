@@ -4,6 +4,7 @@ import com.wineko.api.repository.ArticleRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageImpl;
@@ -11,9 +12,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -154,4 +164,31 @@ public class ArticleService {
                 .collect(Collectors.toList());
     }
 
+
+    public String uploadImage(Integer id, MultipartFile file) {
+        Article article = getById(id);
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+
+        try {
+            // Save the file locally
+            Path uploadPath = Paths.get("uploads/");
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            try (InputStream inputStream = file.getInputStream()) {
+                String uuid = UUID.randomUUID().toString();
+                String extension = FilenameUtils.getExtension(fileName);
+                Path filePath = uploadPath.resolve(uuid + "." + extension);
+
+                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                article.setImage(filePath.toString());
+                save(article);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to store file " + fileName, e);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file " + fileName, e);
+        }
+        return "File uploaded successfully: " + fileName;
+    }
 }

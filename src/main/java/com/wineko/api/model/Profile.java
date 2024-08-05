@@ -3,6 +3,8 @@ package com.wineko.api.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Date;
+
 @Entity
 @Data
 public class Profile {
@@ -16,5 +18,11 @@ public class Profile {
 
     @Column(name ="first_name")
     private String firstName;
+
+    @Column(name ="birthdate")
+    private Date birthdate;
+
+    @Column(name ="phone_number")
+    private String phoneNumber;
 
 }

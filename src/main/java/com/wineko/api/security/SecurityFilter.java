@@ -37,9 +37,9 @@ public class SecurityFilter extends OncePerRequestFilter {
                 Claims claims = jwtTokenManager.parseToken(token);
                 String username = claims.getSubject();
 
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = usersService.loadUserByUsername(username);
-                    if (jwtTokenManager.validateToken(token, userDetails)) {
+                if (username != null) {
+                    UserDetails userDetails = usersService.findByToken(username);
+                    if (userDetails != null) {
                         Authentication authentication = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(authentication);
