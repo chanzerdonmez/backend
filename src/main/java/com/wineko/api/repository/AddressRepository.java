@@ -9,6 +9,5 @@ import java.util.List;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Integer> {
-    List<Address> findByUser(Users user);
 
 }

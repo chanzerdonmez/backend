@@ -123,10 +123,23 @@ public class ArticleService {
      * @param updated
      * @return
      */
-    public Article update(Integer id, Article updated){
+    public Article update(Integer id, Article updated) {
+        Article existingArticle = getById(id);
         updated.setId(id);
+
+        // Conserver l'image existante si aucune nouvelle image n'est fournie
+        if (updated.getImage() == null || updated.getImage().isEmpty()) {
+            updated.setImage(existingArticle.getImage());
+        }
+
+        // Conserver la date de création existante si elle est nulle
+        if (updated.getDateCreation() == null) {
+            updated.setDateCreation(existingArticle.getDateCreation());
+        }
+
         return this.articleRepository.save(updated);
     }
+
 
     /**
      * Passe le champ 'active' de l'article à false

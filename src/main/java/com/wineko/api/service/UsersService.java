@@ -5,15 +5,18 @@ import com.wineko.api.model.Users;
 import com.wineko.api.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UsersService implements UserDetailsService {
@@ -21,6 +24,13 @@ public class UsersService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    @Lazy
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public Users save(Users users){
         return userRepository.save(users);
@@ -104,4 +114,32 @@ public class UsersService implements UserDetailsService {
         return userRepository.findByEmail(username);
     }
 
+    public Users findByResetToken(String resetToken) {
+        return userRepository.findByResetToken(resetToken);
+    }
+
+    public void sendConfirmationUpdateEmail(String oldEmail, String newEmail, String firstName) {
+        emailService.sendConfirmationUpdateEmail(oldEmail, newEmail, firstName);
+    }
+
+    public void sendConfirmationUpdatePassword(Users user) {
+        emailService.sendConfirmationUpdatePassword(user);
+    }
+
+
+    public void anonymizeUser(Integer userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+
+        user.setName("Anonyme");
+        user.setFirstName("Utilisateur");
+        user.setEmail("anonymous" + user.getId() + "@example.com");
+        user.setPhone("0000000000");
+        user.setBirthdate(null);
+        user.setPassword(bCryptPasswordEncoder.encode("password"));
+
+        user.setEnabled(false);
+
+        userRepository.save(user);
+    }
 }

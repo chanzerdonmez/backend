@@ -16,27 +16,29 @@ public class AddressService {
     @Autowired
     private AddressRepository addressRepository;
 
-    @Autowired
-    private UserRepository userRepository;
 
-    public AddressService(AddressRepository addressRepository, UserRepository userRepository) {
-        this.addressRepository = addressRepository;
-        this.userRepository = userRepository;
+    public Address saveAddress(Address address) {
+        return addressRepository.save(address);
     }
 
+//    public AddressService(AddressRepository addressRepository, UserRepository userRepository) {
+//        this.addressRepository = addressRepository;
+//        this.userRepository = userRepository;
+//    }
 
-    public void saveAddressForUser(Users user, Address address) {
-        address.setUser(user);
-        addressRepository.save(address);
-    }
 
-    public Address update(Integer id, Address updated){
-        updated.setId(id);
-        return this.addressRepository.save(updated);
-    }
+//    public void saveAddressForUser(Users user, Address address) {
+//        address.setUser(user);
+//        addressRepository.save(address);
+//    }
 
-    public List<Address> getAddressesByUser(Users user) {
-        return addressRepository.findByUser(user);
-    }
+//    public Address update(Integer id, Address updated){
+//        updated.setId(id);
+//        return this.addressRepository.save(updated);
+//    }
+
+//    public List<Address> getAddressesByUser(Users user) {
+//        return addressRepository.findByUser(user);
+//    }
 
 }

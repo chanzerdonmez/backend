@@ -3,10 +3,17 @@ package com.wineko.api.controller;
 import com.wineko.api.model.Article;
 import com.wineko.api.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,12 +22,16 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class ArticleController {
 
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     @Autowired
     private ArticleService articleService;
 
     public ArticleController(ArticleService articleService) {
         this.articleService = articleService;
     }
+
 
     @GetMapping("/get/all")
     public List<Article> allArticles(){
@@ -91,6 +102,26 @@ public class ArticleController {
 
 
 
+    @GetMapping("/image/{filename:.+}")
+    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
+        try {
+            Path filePath = Paths.get(uploadDir).resolve(filename);
+            System.out.println("Fetching image from: " + filePath.toAbsolutePath());
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                System.out.println("Image not found or unreadable");
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            System.out.println("Exception while fetching image: " + e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 
 

@@ -7,6 +7,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -43,14 +44,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/api/article/**").permitAll()
-                        .requestMatchers("/api/order").permitAll()
+                        .requestMatchers("/api/order/**").permitAll()
                         .requestMatchers("/api/address").permitAll()
                         .requestMatchers("/api/address/user/").permitAll()
+                        .requestMatchers("/api/carts/**").authenticated()
                         .requestMatchers("/api/address/user/").authenticated()
                         .requestMatchers("/api/address/**").authenticated()
-
+                        .requestMatchers("/api/user/addresses").authenticated()
                         .requestMatchers("/api/open/**").permitAll()
+                        .requestMatchers("/api/contact/**").permitAll()
+                        .requestMatchers("/api/stripe/**").authenticated()
                         .requestMatchers("/api/users/info").authenticated()
+                        .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/dashboard/**").hasAnyAuthority("ADMIN")
                         .anyRequest().permitAll()
@@ -60,9 +65,9 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID", "jwt")
+                        .deleteCookies("JSESSIONID", "token")
+                        .permitAll()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -83,8 +88,8 @@ public class SecurityConfig {
         config.addAllowedHeader("X-XSRF-TOKEN");
         config.addAllowedHeader("Content-Type");
         config.addAllowedHeader("Authorization");
-        config.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedOrigins(List.of("http://localhost:4200", "http://srv589783.hstgr.cloud"));
         config.setAllowCredentials(true);
 
         source.registerCorsConfiguration("/**", config);
@@ -105,4 +110,7 @@ public class SecurityConfig {
         serializer.setSameSite("Strict");
         return serializer;
     }
+
+
+
 }

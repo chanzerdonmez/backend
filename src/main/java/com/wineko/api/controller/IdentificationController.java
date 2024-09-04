@@ -9,6 +9,7 @@ import com.wineko.api.manager.WsException;
 import com.wineko.api.model.RecaptchaResponse;
 import com.wineko.api.model.Role;
 import com.wineko.api.model.Users;
+import com.wineko.api.service.CartService;
 import com.wineko.api.service.EmailService;
 import com.wineko.api.service.UsersService;
 import jakarta.servlet.http.Cookie;
@@ -34,6 +35,9 @@ public class IdentificationController {
 
     @Autowired
     private UsersService usersService;
+
+    @Autowired
+    private CartService cartService;
 
 //    @Autowired
 //    private RoleService roleService;
@@ -75,8 +79,8 @@ public class IdentificationController {
 
 
         // Générer le token
-        String token = JwtTokenManager.generateToken(users.getToken());
-
+        String token = JwtTokenManager.generateToken(users.getEmail(), users.getId(), users.getRole().toString());
+        logger.info(token);
         // Définir le cookie
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
@@ -95,6 +99,7 @@ public class IdentificationController {
         dto.setFirstName(users.getFirstName());
         dto.setEmail(users.getEmail());
         dto.setToken(token);
+        dto.setRole(users.getRole());
 
         return dto;
     }
@@ -159,7 +164,10 @@ public class IdentificationController {
             users.setToken(Aleatoire.getRandomStr(50));
         } while (usersService.findByToken(users.getToken()) != null);
 
-        usersService.save(users);
+        Users savedUser = usersService.save(users);
+
+        cartService.createCart(savedUser.getId());
+
 
         String confirmationUrl = "http://localhost:8080/api/open/confirm?token=" + users.getToken();
         logger.info("Sending confirmation email to " + users.getEmail());
@@ -169,7 +177,8 @@ public class IdentificationController {
                 "Cliquez sur le lien pour confirmer votre inscription : " + confirmationUrl
         );
 
-        return Map.of("token", JwtTokenManager.generateToken(users.getToken()));
+        return Map.of("token", JwtTokenManager.generateToken(users.getEmail(), users.getId(), users.getRole().toString()));
+
     }
 
     @GetMapping("/confirm")

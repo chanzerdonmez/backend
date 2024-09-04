@@ -12,4 +12,8 @@ import java.util.List;
 
     @Query("SELECT o FROM Orders o JOIN FETCH o.users")
     List<Orders> findAllWithUsers();
-    }
+
+    List<Orders> findByUsersId(Integer userId);
+
+
+}

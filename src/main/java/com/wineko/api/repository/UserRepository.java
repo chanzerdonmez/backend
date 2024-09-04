@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 
 //    Users findByUsername(String username);
 
+    Users findByResetToken(String resetToken);
+
 
 
 }

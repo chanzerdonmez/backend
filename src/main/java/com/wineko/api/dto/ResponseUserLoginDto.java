@@ -10,6 +10,6 @@ public class ResponseUserLoginDto {
     private String firstName;
     private String email;
     private String token;
-
+    private Enum role;
 
 }

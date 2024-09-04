@@ -2,6 +2,7 @@ package com.wineko.api.manager;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -9,21 +10,30 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Component
 public class JwtTokenManager {
 
     private static final String SECRET_KEY = "wzUpGa9k4LTV3QHuY8qVrt6wOENkvdes5vLHVc1ex6581IiQ";
 
-    public static String generateToken(String tokenUser) {
+    public static String generateToken(String usersEmail, Integer id, String role) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR, 24);
         SecretKey key = secretKey();
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+
         return Jwts.builder()
-                .setSubject(tokenUser)
+                .setClaims(claims) // Utilisez les claims définis
+                .setSubject(usersEmail)
+                .setAudience(String.valueOf(id))
                 .setExpiration(calendar.getTime())
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS384)
                 .compact();
     }
 
@@ -39,8 +49,14 @@ public class JwtTokenManager {
 
     public Integer getUserIdFromToken(String token) {
         Claims claims = parseToken(token);
-        return Integer.parseInt(claims.getSubject());
+//        return Integer.parseInt(claims.getSubject());
+        return Integer.parseInt(claims.getAudience()); // Assurez-vous que l'Audience contient l'ID utilisateur
+
+//        return Integer.parseInt(claims.getAudience()); // Use audience claim for user ID
+
     }
+
+
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);

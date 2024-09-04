@@ -56,6 +56,16 @@ public class Users implements UserDetails {
     @Column(name ="token")
     private String token;
 
+    @Column(name ="phone")
+    private String phone;
+
+    @Column(name ="birthdate")
+    @Temporal(TemporalType.DATE)
+    private Date birthdate;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
 //    @ManyToMany(fetch = FetchType.EAGER)
 //    private List<Role> roles;
 

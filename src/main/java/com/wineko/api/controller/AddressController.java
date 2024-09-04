@@ -31,14 +31,14 @@ public class AddressController {
     @Autowired
     private UsersService usersService;
 
-    @PostMapping("/add")
-    public String addAddress(@RequestBody Address address,@AuthenticationPrincipal UserDetails principal) {
-
-        Users user = (Users) principal;
-
-        addressService.saveAddressForUser(user, address);
-        return "Address added successfully";
-    }
+//    @PostMapping("/add")
+//    public String addAddress(@RequestBody Address address,@AuthenticationPrincipal UserDetails principal) {
+//
+//        Users user = (Users) principal;
+//
+//        addressService.saveAddressForUser(user, address);
+//        return "Address added successfully";
+//    }
 
 
 //    @PostMapping("/add")
@@ -57,24 +57,24 @@ public class AddressController {
 
 
 
-    @PatchMapping("/update/{id}")
-    public Address updateAddress(
-            @PathVariable Integer id,
-            @RequestBody Address address
-    ){
-        this.addressService.update(id, address);
-        return address;
-    }
+//    @PatchMapping("/update/{id}")
+//    public Address updateAddress(
+//            @PathVariable Integer id,
+//            @RequestBody Address address
+//    ){
+//        this.addressService.update(id, address);
+//        return address;
+//    }
 
 
-    @GetMapping("/user/addresses")
-    public List<Address> getUserAddresses(@AuthenticationPrincipal UserDetails principal) {
-        Users user = usersService.findByUsername(principal.getUsername());
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-        return addressService.getAddressesByUser(user);
-    }
+//    @GetMapping("/user/addresses")
+//    public List<Address> getUserAddresses(@AuthenticationPrincipal UserDetails principal) {
+//        Users user = usersService.findByUsername(principal.getUsername());
+//        if (user == null) {
+//            throw new IllegalArgumentException("User not found");
+//        }
+//        return addressService.getAddressesByUser(user);
+//    }
 
 
 }

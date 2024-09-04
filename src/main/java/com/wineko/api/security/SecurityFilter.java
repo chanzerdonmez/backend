@@ -36,9 +36,10 @@ public class SecurityFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtTokenManager.parseToken(token);
                 String username = claims.getSubject();
-
+//                System.out.println("username: " + username);
                 if (username != null) {
-                    UserDetails userDetails = usersService.findByToken(username);
+                    UserDetails userDetails = usersService.findByEmail(username);
+                    System.out.println("userDetails: " + userDetails);
                     if (userDetails != null) {
                         Authentication authentication = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
@@ -65,11 +66,18 @@ public class SecurityFilter extends OncePerRequestFilter {
     private String getJwtFromCookies(HttpServletRequest request) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if ("jwt".equals(cookie.getName())) {
+                if ("token".equals(cookie.getName())) {
+                    System.out.println("JWT extrait du cookie: " + cookie.getValue());
+
                     return cookie.getValue();
                 }
             }
         }
+        System.out.println("Aucun JWT trouvé dans les cookies.");
         return null;
     }
+
+
+
+
 }

@@ -11,29 +11,28 @@ import lombok.Setter;
 public class Address {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-//    @Column(name ="number_order")
-//    private String numberOrder;
+    @Column(name ="name")
+    private String name;
 
-    @Column(name ="city")
+    @Column(name ="first_name")
+    private String firstName;
+
+    @Column(name = "city")
     private String city;
 
-    @Column(name ="zip_code")
+    @Column(name = "zip_code")
     private String zipCode;
 
-    @Column(name ="street_name")
+    @Column(name = "street_name")
     private String streetName;
 
-    @Column(name ="street_number")
+    @Column(name = "street_number")
     private String streetNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = true)  // colonne de jointure
-    private Users user;
-
-    @Transient // This field is not persisted in the database
-    private Integer userId;
+    @Column(name = "address_type")
+    private String addressType; // "billing" or "delivery"
 
 }
