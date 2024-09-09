@@ -89,7 +89,7 @@ public class SecurityConfig {
         config.addAllowedHeader("Content-Type");
         config.addAllowedHeader("Authorization");
         config.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://srv589783.hstgr.cloud"));
+        config.setAllowedOrigins(List.of("http://localhost:4200", "https://wineko.srv589783.hstgr.cloud"));
         config.setAllowCredentials(true);
 
         source.registerCorsConfiguration("/**", config);

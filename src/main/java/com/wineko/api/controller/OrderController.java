@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/order")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://chanzerdonmez.github.io/sitewineko")
 public class OrderController {
 
     private final OrdersService ordersService;
